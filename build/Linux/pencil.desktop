@@ -11,3 +11,4 @@ StartupNotify=true
 Icon=pencil.svg
 Categories=Graphics;2DGraphics;Development;
 MimeType=application/ep;
+GenericName=Prototyping tool
