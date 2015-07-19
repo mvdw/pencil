@@ -76,11 +76,12 @@ If you set the ``DEBUG`` environmental variable when building Pencil, the
     firefox --app Outputs/Linux/application.ini -console -jsconsole -purgecaches
 
 Setting ``DEBUG`` will cause also Pencil to start a remote debugging server on
-port ``6000``. This lets you use Firefox's DOM Inspector to debug Pencil. You
-can connect Firefox to the debugging server by going to ``Firefox -> Tools ->
-Web Developer -> Connect...``. You may need to enable Remote Debugging under
-Firefox's ``Web Developer Tools`` Settings(``Ctrl-Shift-I`` then click the gear
-icon in the upper-right).
+port ``6000``. This lets you use Firefox's DOM Inspector to debug Pencil - but
+only when you run Pencil using ``xulrunner``. You can connect Firefox to the
+debugging server by going to ``Firefox -> Tools -> Web Developer ->
+Connect...``. You may need to enable Remote Debugging under Firefox's ``Web
+Developer Tools`` Settings(``Ctrl-Shift-I`` then click the gear icon in the
+upper-right).
 
 
 Writing Documentation
@@ -130,7 +131,8 @@ comment to the :doc:`api` page. For example:
     }
 
 Note that the dots for the ``function`` annotation should be indented by one
-space, so they line up with the ``*`` of the ``/*``.
+space, so they line up with the ``*`` of the ``/*``. This will create the
+proper nesting in the final documentation.
 
 .. _Sphinx: http://sphinx-doc.org/
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
@@ -166,4 +168,3 @@ this usually happens in the ``prep()`` function).
 
 You can pass the ``clean`` argument to ``build.sh`` to remove all the outputs.
 You can use ``maintainer-clean`` to remove any XULRunner downloads as well.
-
