@@ -8,6 +8,3 @@ docs/build
 .DS_Store
 ._.*
 Thumbs.db
-.directory
-.kateproject
-.kateproject.d
