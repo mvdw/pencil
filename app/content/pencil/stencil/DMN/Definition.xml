@@ -317,13 +317,16 @@
             <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
         </p:Content>
     </Shape>
-  <!--Shape id="businessknowledge" displayName="Business Knowledge"
+    <!--Shape id="businessknowledge" displayName="Business Knowledge"
         icon="Icons/businessknowledge.png">
 
-  </Shape-->
+    </Shape-->
 
 
+    <!--Shape id="knowledgesource" displayName="Knowledge Source"
+        icon="Icons/knowledgesource.png">
 
+    </Shape-->
 
 
 
