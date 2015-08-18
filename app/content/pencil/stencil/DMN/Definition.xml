@@ -11,7 +11,7 @@
     xmlns:xlink="http://www.w3.org/1999/xlink"
     author="Michiel van der Wulp"
     description="Decision Modeling Notation (DMN) drawing stencils"
-    displayName="DMN"
+    displayName="Decision Modeling Notation"
     id="DMN.01"
     url="https://github.com/prikhi/pencil">
   
@@ -85,7 +85,7 @@
     </Script>
 
 
-	<Shortcut displayName="Straight Connector" icon="Icons/straight-connector.png" to="Evolus.Common:arrow">
+    <Shortcut displayName="Straight Connector" icon="Icons/straight-connector.png" to="Evolus.Common:arrow">
         <PropertyValue name="textFont"><E>$$defaultTextFont</E></PropertyValue>
         <PropertyValue name="textColor"><E>$$defaultTextColor</E></PropertyValue>
         <PropertyValue name="strokeColor"><E>$$strokeColor</E></PropertyValue>
@@ -366,8 +366,8 @@
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <Fill>$fillColor</Fill>
                 <D>     <!-- the tilted line is 1/3th of the height, and 45 degrees angle -->
-		    var tilt = $box.h / 3;
-		    [M(tilt,0), L($box.w,0), L($box.w,2*tilt), L($box.w-tilt,$box.h), L(0,$box.h), L(0,tilt), L(tilt,0)]
+            var tilt = $box.h / 3;
+            [M(tilt,0), L($box.w,0), L($box.w,2*tilt), L($box.w-tilt,$box.h), L(0,$box.h), L(0,tilt), L(tilt,0)]
                 </D>
             </For>
 
@@ -479,8 +479,8 @@
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <Fill>$fillColor</Fill>
                 <D>     <!-- the sine wave amplitude is 1/5th of the height -->
-		    var ampl = $box.h / 5;
-		    [M(0,$box.h-ampl/2), L(0, 0), L($box.w,0), L($box.w,$box.h-ampl/2), Q($box.w*3/4, $box.h-3*ampl/2, $box.w/2, $box.h-ampl/2), T(0, $box.h-ampl/2)]
+            var ampl = $box.h / 5;
+            [M(0,$box.h-ampl/2), L(0, 0), L($box.w,0), L($box.w,$box.h-ampl/2), Q($box.w*3/4, $box.h-3*ampl/2, $box.w/2, $box.h-ampl/2), T(0, $box.h-ampl/2)]
                 </D>
             </For>
 
