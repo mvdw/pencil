@@ -435,11 +435,115 @@
     
 
 
-    <!--Shape id="knowledgesource" displayName="Knowledge Source"
-        icon="Icons/knowledgesource.png">
+    <Shape id="knowledgesource" displayName="Knowledge Source" icon="Icons/knowledgesource.png">
+        <Properties>
+            <PropertyGroup>
+                <Property displayName="Box" name="box" type="Dimension">140,50</Property>
+                <Property displayName="Outpin #1 origin" name="outputPin1Origin" p:expressionX="$box.w / 2" p:expressionY="0" type="Point">50,0</Property>
+                <Property displayName="Outpin #1" name="outputPin1" p:connectTo="FCInput" p:unconnectedValue="$outputPin1Origin" type="Handle">0,0</Property>
+                <Property displayName="Outpin #2 origin" name="outputPin2Origin" p:expressionX="$box.w" p:expressionY="$box.h / 2" type="Point">100,50</Property>
+                <Property displayName="Outpin #2" name="outputPin2" p:connectTo="FCInput" p:unconnectedValue="$outputPin2Origin" type="Handle">0,0</Property>
+                <Property displayName="Outpin #3 origin" name="outputPin3Origin" p:expressionX="$box.w / 2" p:expressionY="$box.h" type="Point">50,100</Property>
+                <Property displayName="Outpin #3" name="outputPin3" p:connectTo="FCInput" p:unconnectedValue="$outputPin3Origin" type="Handle">0,0</Property>
+                <Property displayName="Outpin #4 origin" name="outputPin4Origin" p:expressionX="0" p:expressionY="$box.h / 2" type="Point">0,50</Property>
+                <Property displayName="Outpin #4" name="outputPin4" p:connectTo="FCInput" p:unconnectedValue="$outputPin4Origin" type="Handle">0,0</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Background">
+                <Property displayName="Background" name="fillColor" type="Color">
+                    <E>$$fillColor</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Border">
+                <Property displayName="Border Color" name="strokeColor" type="Color">
+                    <E>$$strokeColor</E>
+                </Property>
+                <Property displayName="Border Style" name="strokeStyle" type="StrokeStyle">
+                    <E>$$strokeStyle</E>
+                </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property displayName="Text Content" name="textContent" p:editInfo="({targetName: 'text', bound: Bound.fromBox($box), font: $textFont, align: $textAlign, multi: true})" type="PlainText" />
+                <Property displayName="Text Font" name="textFont" type="Font">
+                    <E>$$defaultTextFont</E>
+                </Property>
+                <Property displayName="Text Color" name="textColor" type="Color">
+                    <E>$$defaultTextColor</E>
+                </Property>
+                <Property displayName="Text Align" name="textAlign" type="Alignment">1,1</Property>
+            </PropertyGroup>
+        </Properties>
+        <Behaviors>
+            <For ref="path">
+                <Transform>[translate(($strokeStyle.w % 2) / 2, ($strokeStyle.w % 2) / 2)]</Transform>
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <Fill>$fillColor</Fill>
+                <D>     <!-- the sine wave amplitude is 1/5th of the height -->
+		    var ampl = $box.h / 5;
+		    [M(0,$box.h-ampl/2), L(0, 0), L($box.w,0), L($box.w,$box.h-ampl/2), Q($box.w*3/4, $box.h-3*ampl/2, $box.w/2, $box.h-ampl/2), T(0, $box.h-ampl/2)]
+                </D>
+            </For>
 
-    </Shape-->
+            <For ref="text">
+                <Font>$textFont</Font>
+                <Color>$textColor</Color>
+                <DomContent>F.buildTextWrapDomContent(F._target, $textContent.value, $box.w - $textFont.getPixelHeight(), $textAlign)</DomContent>
+                <BoxFit>
+                    <Arg>Bound.fromBox($box, $textFont.getPixelHeight() / 2)</Arg>
+                    <Arg>$textAlign</Arg>
+                </BoxFit>
+            </For>
+            <For ref="outputArrrow1">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>arrowTo([$outputPin1Origin, $outputPin1Origin.translate(0, 0 - collection.VIA_LENGTH)], $outputPin1, $strokeStyle.w, collection.VIA_LENGTH, false, false, true, false, 0)</D>
+            </For>
+            <For ref="outputArrrow2">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>arrowTo([$outputPin2Origin, $outputPin2Origin.translate(0 + collection.VIA_LENGTH, 0)], $outputPin2, $strokeStyle.w, collection.VIA_LENGTH, false, false, true, false, 0)</D>
+            </For>
+            <For ref="outputArrrow3">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>arrowTo([$outputPin3Origin, $outputPin3Origin.translate(0, 0 + collection.VIA_LENGTH)], $outputPin3, $strokeStyle.w, collection.VIA_LENGTH, false, false, true, false, 0)</D>
+            </For>
+            <For ref="outputArrrow4">
+                <StrokeColor>$strokeColor</StrokeColor>
+                <StrokeStyle>$strokeStyle</StrokeStyle>
+                <D>arrowTo([$outputPin4Origin, $outputPin4Origin.translate(0 - collection.VIA_LENGTH, 0)], $outputPin4, $strokeStyle.w, collection.VIA_LENGTH, false, false, true, false, 0)</D>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>return this.def.collection.buildSnappingGuides(this);</Impl>
+            </Action>
+            <Action id="getConnectorOutlets">
+                <Impl>
+                <![CDATA[
+                    var box = this.getProperty("box");
+                    var d = box.w / 7;
+                    return this.def.collection.buildConnectorOutletsWith(box, [
+                        new Outlet("top-left", "FCInput", d, 0),
+                        new Outlet("top-right", "FCInput", box.w - d, 0),
+                        new Outlet("bottom-left", "FCInput", d, box.h),
+                        new Outlet("bottom-right", "FCInput", box.w - d, box.h),
+                    ]);
+                ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns="http://www.w3.org/2000/svg">
+            <path id="path" style="stroke-linejoin: round;" />
 
+            <text id="text" text-anchor="start" xml:space="preserve" />
+            <path id="outputArrrow1" style="stroke-linejoin: round; fill: none;" />
+            <path id="outputArrrow2" style="stroke-linejoin: round; fill: none;" />
+            <path id="outputArrrow3" style="stroke-linejoin: round; fill: none;" />
+            <path id="outputArrrow4" style="stroke-linejoin: round; fill: none;" />
+        </p:Content>
+    </Shape>    
+    
 
 
 </Shapes>
