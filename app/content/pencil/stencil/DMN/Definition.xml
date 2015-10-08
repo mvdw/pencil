@@ -250,7 +250,7 @@
                 <StrokeStyle>$strokeStyle</StrokeStyle>
                 <Fill>$fillColor</Fill>
                 <D>
-                    var ay = $box.w / 3;
+                    var ay = $box.h; /* The dimension of the circle depends on the height, not the width. */
                     [M(ay/2, 0), L($box.w - ay/2, 0), C($box.w - ay/4, 0, $box.w, $box.h/4, $box.w, $box.h/2),
                     S($box.w - ay/4, $box.h, $box.w - ay/2, $box.h), L(ay/2, $box.h),
                     C(ay/4, $box.h, 0, 3*$box.h/4, 0, $box.h/2), S(ay/4, 0, ay/2, 0)
