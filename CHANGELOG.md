@@ -2,6 +2,23 @@ This file describes all user-facing changes, by version.
 
 # develop
 
+* Change name to Pencil Prototyping for AMO(#749).
+* Add Support for Firefox/XULrunner v43(#775).
+* Fix Path to Icon in Linux(#764).
+
+# v2.0.15
+
+* Add Backspace as an Alternative to Delete Objects from a Document(#191).
+* Reduce Angle of Arrowhead Lines(#753).
+
+# v2.0.14
+
+* Update the "About" Window(#731).
+* Fix Bad Image Paths in HTML Exports(#737).
+* Fix Data Loss When Exporting a File as an Existing Directory(#736).
+* Fix the Ubuntu Build Script.
+* Add Support for Firefox/XULrunner v42.
+
 # v2.0.13
 
 * Add Support for Firefox/XULrunner v41.

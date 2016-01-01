@@ -1,6 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 . ./properties.sh
+
+
+run_task() {
+  task=$@
+
+  ${task}
+  result=$?
+
+  if [ "${result}" != "0" ]; then
+    echo ":: Task has failed with exit code ${result}" 1>&2
+    echo " -> ${task}"
+    exit ${result}
+  fi
+}
+
 
 prep() {
     rm -Rf ./Outputs/
@@ -19,26 +34,26 @@ prep() {
 
 
     echo "Copying base application files..."
-    cp -R ../app/* ./Outputs/Pencil/
+    run_task cp -R ../app/* ./Outputs/Pencil/
 
     echo "Copying icons..."
     mkdir -p ./Outputs/Pencil/chrome/icons/default/
-    cp ./Outputs/Pencil/skin/classic/pencil.ico ./Outputs/Pencil/chrome/icons/default/pencilMainWindow.ico
-    cp ./Outputs/Pencil/skin/classic/pencil.xpm ./Outputs/Pencil/chrome/icons/default/pencilMainWindow.xpm
+    run_task cp ./Outputs/Pencil/skin/classic/pencil.ico ./Outputs/Pencil/chrome/icons/default/pencilMainWindow.ico
+    run_task cp ./Outputs/Pencil/skin/classic/pencil.xpm ./Outputs/Pencil/chrome/icons/default/pencilMainWindow.xpm
 
     echo "Configuring application..."
-    ./replacer.sh ./Outputs/Pencil/application.ini
-    ./replacer.sh ./Outputs/Pencil/defaults/preferences/pencil.js
-    ./replacer.sh ./Outputs/Pencil/content/pencil/mainWindow.xul
-    ./replacer.sh ./Outputs/Pencil/content/pencil/aboutDialog.xul
-    ./replacer.sh ./Outputs/Pencil/content/pencil/aboutDialog.js
-    ./replacer.sh ./Outputs/Pencil/content/pencil/common/pencil.js
-    ./replacer.sh ./Outputs/Pencil/content/pencil/common/util.js
+    run_task ./replacer.sh ./Outputs/Pencil/application.ini
+    run_task ./replacer.sh ./Outputs/Pencil/defaults/preferences/pencil.js
+    run_task ./replacer.sh ./Outputs/Pencil/content/pencil/mainWindow.xul
+    run_task ./replacer.sh ./Outputs/Pencil/content/pencil/aboutDialog.xul
+    run_task ./replacer.sh ./Outputs/Pencil/content/pencil/aboutDialog.js
+    run_task ./replacer.sh ./Outputs/Pencil/content/pencil/common/pencil.js
+    run_task ./replacer.sh ./Outputs/Pencil/content/pencil/common/util.js
 
     if [ ! $DEBUG ]; then
         echo "Removing debugging files..."
-        rm ./Outputs/Pencil/defaults/preferences/personal.js.xulrunner
-        rm ./Outputs/Pencil/defaults/preferences/debug.js
+        run_task rm ./Outputs/Pencil/defaults/preferences/personal.js.xulrunner
+        run_task rm ./Outputs/Pencil/defaults/preferences/debug.js
     fi
 }
 
@@ -50,25 +65,25 @@ xpi() {
     rm -Rf $OUTPUT/
     mkdir -p $OUTPUT/
 
-    cp -R ./Outputs/Pencil/* $OUTPUT/
-    cp -R ./XPI/* $OUTPUT
+    run_task cp -R ./Outputs/Pencil/* $OUTPUT/
+    run_task cp -R ./XPI/* $OUTPUT
 
-    ./replacer.sh $OUTPUT/install.rdf
-    ./replacer.sh $OUTPUT/update.rdf
+    run_task ./replacer.sh $OUTPUT/install.rdf
+    run_task ./replacer.sh $OUTPUT/update.rdf
 
     echo "Configuring XPI-specific settings..."
-    cp -f ../app/defaults/preferences/pencil.js $OUTPUT/defaults/preferences/pencil.js
+    run_task cp -f ../app/defaults/preferences/pencil.js $OUTPUT/defaults/preferences/pencil.js
     export XULRUNNER_XUL=""
-    ./replacer.sh ./Outputs/XPI/defaults/preferences/pencil.js
+    run_task ./replacer.sh ./Outputs/XPI/defaults/preferences/pencil.js
 
     echo "Removing branding..."
-    sed -ni '/branding/!p' $OUTPUT/chrome.manifest
+    run_task sed -ni '/branding/!p' $OUTPUT/chrome.manifest
 
 
     echo "Compressing XPI file..."
     cd $OUTPUT/
     rm -f ../$XPI_NAME
-    zip -r ../$XPI_NAME * > /dev/null
+    run_task zip -r --quiet ../$XPI_NAME *
     export XPIHASH=`sha1sum ../$XPI_NAME | sed -e s^..../$XPI_NAME^^`
     echo 'XPI SHA1 hash: '$XPIHASH
     cd ../../
@@ -83,12 +98,12 @@ linux() {
     mkdir -p $OUTPUT
 
     echo "Copying common files..."
-    cp -R ./Outputs/Pencil/* $OUTPUT/
+    run_task cp -R ./Outputs/Pencil/* $OUTPUT/
 
     echo "Compressing..."
     cd ./Outputs
-    cp -R ../$OUTPUT $PKG_NAME
-    tar -czf ./Pencil-$VERSION-linux.tar.gz $PKG_NAME
+    run_task cp -R ../$OUTPUT $PKG_NAME
+    run_task tar -czf ./Pencil-$VERSION-linux.tar.gz $PKG_NAME
     rm -Rf $PKG_NAME
     cd ..
 }
@@ -105,17 +120,17 @@ linuxpkg() {
     mkdir -p $OUTPUT/usr/{bin,share/{$PKG_NAME,applications,mime/packages}}
 
     echo "Copying common files..."
-    cp -R ./Outputs/Pencil/* $OUTPUT/usr/share/$PKG_NAME/
+    run_task cp -R ./Outputs/Pencil/* $OUTPUT/usr/share/$PKG_NAME/
 
     echo "Copying executable and mime information..."
-    cp ./Linux/pencil $OUTPUT/usr/bin/
-    cp ./Linux/pencil.desktop $OUTPUT/usr/share/applications/
-    cp ./Linux/ep.xml $OUTPUT/usr/share/mime/packages/
+    run_task cp ./Linux/pencil $OUTPUT/usr/bin/
+    run_task cp ./Linux/pencil.desktop $OUTPUT/usr/share/applications/
+    run_task cp ./Linux/ep.xml $OUTPUT/usr/share/mime/packages/
 
     echo "Compressing..."
     cd ./Outputs
-    cp -R ../$OUTPUT $PKG_NAME
-    tar -czf ./Pencil-$VERSION-linux-pkg.tar.gz $PKG_NAME
+    run_task cp -R ../$OUTPUT $PKG_NAME
+    run_task tar -czf ./Pencil-$VERSION-linux-pkg.tar.gz $PKG_NAME
     echo "SHA256SUM: " `sha256sum ./Pencil-$VERSION-linux-pkg.tar.gz`
     rm -Rf $PKG_NAME
     cd ..
@@ -180,9 +195,9 @@ win32() {
         echo "* Downloading XULRunner *"
         echo "-------------------------"
         XUL_DL_URL="http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/$XUL_VERSION/runtimes/xulrunner-$XUL_VERSION.en-US.win32.zip"
-        curl $XUL_DL_URL -o temp.zip
-        unzip temp.zip -d Win32
-        rm temp.zip
+        run_task curl $XUL_DL_URL -o temp.zip
+        run_task unzip temp.zip -d Win32
+        run_task rm temp.zip
     fi
 
     echo "---------------------------------------------"
@@ -193,14 +208,14 @@ win32() {
     rm -Rf $OUTPUT/
     mkdir -p $OUTPUT/app
 
-    cp -R ./Outputs/Pencil/* $OUTPUT/app/
-    cp -R ./Win32/* $OUTPUT/
+    run_task cp -R ./Outputs/Pencil/* $OUTPUT/app/
+    run_task cp -R ./Win32/* $OUTPUT/
 
-    ./replacer.sh $OUTPUT/setup.nsi
+    run_task ./replacer.sh $OUTPUT/setup.nsi
 
     cd $OUTPUT
     echo "Compiling Windows Installer..."
-    makensis -V2 pencil.nsi && makensis -V2 setup.nsi
+    run_task makensis -V2 pencil.nsi && run_task makensis -V2 setup.nsi
     cd ../../
 }
 
@@ -210,9 +225,9 @@ mac() {
         echo "* Downloading XULRunner *"
         echo "-------------------------"
         XUL_DL_URL="http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/$XUL_VERSION/runtimes/xulrunner-$XUL_VERSION.en-US.mac.tar.bz2"
-        curl $XUL_DL_URL -o temp.tar.bz2
-        tar -jxvf temp.tar.bz2 -C Mac
-        rm temp.tar.bz2
+        run_task curl $XUL_DL_URL -o temp.tar.bz2
+        run_task tar -jxvf temp.tar.bz2 -C Mac
+        run_task rm temp.tar.bz2
     fi
     echo "------------------------------------------"
     echo "* Building Mac OS X App with Private XRE *"
@@ -223,49 +238,80 @@ mac() {
     rm -Rf $OUTPUT
     mkdir $OUTPUT
 
-    cp -R ./Mac/* $OUTPUT/
+    run_task cp -R ./Mac/* $OUTPUT/
 
     mkdir -p $OUTPUT/Pencil.app/Contents/Resources/
-    cp -R ./Outputs/Pencil/* $_
-    cp -RL $OUTPUT/XUL.framework/Versions/Current/* $OUTPUT/Pencil.app/Contents/MacOS/
-    mv $OUTPUT/Pencil.app/Contents/MacOS/dependentlibs.list $OUTPUT/Pencil.app/Contents/Resources/dependentlibs.list
-    cp ./Outputs/Pencil/application.ini $OUTPUT/Pencil.app/Contents/Resources/application.ini
+    run_task cp -R ./Outputs/Pencil/* $_
+    run_task cp -RL $OUTPUT/XUL.framework/Versions/Current/* $OUTPUT/Pencil.app/Contents/MacOS/
+    run_task mv $OUTPUT/Pencil.app/Contents/MacOS/dependentlibs.list $OUTPUT/Pencil.app/Contents/Resources/dependentlibs.list
+    run_task cp ./Outputs/Pencil/application.ini $OUTPUT/Pencil.app/Contents/Resources/application.ini
 
-    ./replacer.sh $OUTPUT/Pencil.app/Contents/Resources/application.ini
-    ./replacer.sh $OUTPUT/Pencil.app/Contents/Resources/defaults/preferences/pencil.js
-    ./replacer.sh $OUTPUT/Pencil.app/Contents/Info.plist
+    run_task ./replacer.sh $OUTPUT/Pencil.app/Contents/Resources/application.ini
+    run_task ./replacer.sh $OUTPUT/Pencil.app/Contents/Resources/defaults/preferences/pencil.js
+    run_task ./replacer.sh $OUTPUT/Pencil.app/Contents/Info.plist
 
     echo "Compressing..."
     cd $OUTPUT
-    zip -r ../Pencil-$VERSION-mac-osx.zip Pencil.app > /dev/null
+    run_task zip -r --quiet ../Pencil-$VERSION-mac-osx.zip Pencil.app
     cd ../..
 }
 
-ubuntu() {
-    echo "---------------------------------------------"
-    echo "* Building Ubuntu amd 64                    *"
-    echo "---------------------------------------------"
-    rm -Rf ./Outputs/Ubuntu/
-    mkdir ./Outputs/Ubuntu/
 
-    mkdir ./Outputs/Ubuntu/pencil-2.0.2
-    mkdir ./Outputs/Ubuntu/pencil-2.0.2/usr
-    mkdir ./Outputs/Ubuntu/pencil-2.0.2/usr/bin
-    mkdir ./Outputs/Ubuntu/pencil-2.0.2/usr/share/
-    mkdir ./Outputs/Ubuntu/pencil-2.0.2/usr/share/applications
-    cp ./Ubuntu/pencil ./Outputs/Ubuntu/pencil-2.0.2/usr/bin/pencil
-    cp ./Ubuntu/pencil.desktop ./Outputs/Ubuntu/pencil-2.0.2/usr/share/applications/pencil.desktop
-    cp -r ./Ubuntu/share/pencil ./Outputs/Ubuntu/pencil-2.0.2/usr/share/pencil
-    #curl -nc http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/15.0.1/runtimes/xulrunner-15.0.1.en-US.linux-x86_64.tar.bz2 -o ./Ubuntu/xulrunner-15.0.1.en-US.linux-x86_64.tar.bz2
-    #tar xvfj ./Ubuntu/xulrunner-15.0.1.en-US.linux-x86_64.tar.bz2
-    #cp -r ./xulrunner  ./Outputs/Ubuntu/pencil-2.0.2/usr/share/pencil/xre
-    cp ./Ubuntu/deb ./Outputs/Ubuntu/pencil-2.0.2/deb
-    cp ./Ubuntu/control ./Outputs/Ubuntu/pencil-2.0.2/control
-    cp ./Ubuntu/rules ./Outputs/Ubuntu/pencil-2.0.2/rules
-    cd ./Outputs/Ubuntu/pencil-2.0.2
-    sh ./deb
-    mv ../evoluspencil_2.0.2_all.deb ../../evoluspencil_2.0.2_all.deb
+ubuntu() {
+    PKG="pencil-${VERSION}-ubuntu-all"
+    DIR_TARGET="./Outputs/Ubuntu"
+    DIR_BASE="${DIR_TARGET}/${PKG}"
+    DIR_DEB="${DIR_BASE}/DEBIAN"
+    DIR_SHARE="${DIR_BASE}/usr/share"
+
+    echo "-----------------------"
+    echo "* Building Ubuntu deb *"
+    echo "-----------------------"
+
+    rm -Rf ${DIR_TARGET}
+
+    run_task mkdir -p "${DIR_BASE}/usr/bin" "${DIR_SHARE}/applications" "${DIR_SHARE}/doc/pencil"
+    run_task cp ./Linux/pencil "${DIR_BASE}/usr/bin/pencil"
+    run_task cp ./Linux/pencil.desktop "${DIR_SHARE}/applications/pencil.desktop"
+    run_task cp -r ./Outputs/Pencil "${DIR_BASE}/usr/share/pencil"
+    run_task mkdir -p "${DIR_DEB}"
+
+    old_ifs="${IFS}"
+    IFS=$(echo -e "\n")
+    ctrl=$(cat Ubuntu/control)
+    copy=$(cat Ubuntu/copyright)
+
+    for line in $ctrl; do
+      line=$(echo $line | sed "s/{VERSION}/${VERSION}/g")
+      line=$(echo $line | sed "s/{MAINTAINER}/${MAINTAINER}/g")
+      line=$(echo $line | sed "s/{MIN_VERSION}/${MIN_VERSION}/g")
+      echo $line >> ${DIR_DEB}/control
+    done
+
+    for line in $copy; do
+      line=$(echo $line | sed "s/{MAINTAINER}/${MAINTAINER}/g")
+      echo $line >> ${DIR_SHARE}/doc/pencil/copyright
+    done
+
+    IFS="${old_ifs}"
+    run_task cp ../CHANGELOG.md ${DIR_SHARE}/doc/pencil/changelog
+    run_task gzip -9 ${DIR_SHARE}/doc/pencil/changelog
+
+    # Remove extra license files to avoid Lintian warning
+    rm ${DIR_SHARE}/pencil/content/pencil/license.txt
+    rm ${DIR_SHARE}/pencil/license.txt
+
+    # Packages retain ownership, files should be owned by root
+    run_task sudo chown -R root ${DIR_BASE}
+
+    run_task dpkg-deb --build ${DIR_BASE}
+
+    run_task mv ${DIR_TARGET}/*.deb ./Outputs/
+
+    # Clean up the build dir now, while we still have sudo access
+    sudo rm -rf ${DIR_TARGET}
 }
+
 
 clean() {
     echo "------------------------"
@@ -337,6 +383,7 @@ case "$1" in
         mac
         linux
         linuxpkg
+        ubuntu
         ;;
 esac
 

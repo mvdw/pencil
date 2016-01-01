@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This script creates a release on a new branch, it does not modify any
 # long-term branches.
@@ -82,13 +82,14 @@ main() {
     BUILD_FILES=("Pencil-$NEW_VERSION-firefox.xpi"
                  "Pencil-$NEW_VERSION-linux.tar.gz"
                  "Pencil-$NEW_VERSION-linux-pkg.tar.gz"
+                 "pencil-$NEW_VERSION-ubuntu-all.deb"
                  "Pencil-$NEW_VERSION-mac-osx.zip"
                  "Pencil-$NEW_VERSION-win32.installer.exe")
 
     for f in ${BUILD_FILES[@]}; do
         echo "Uploading $f..."
         MIME_TYPE=`file --mime-type $f | cut -f2 -d' '`
-        FILE_UPLOAD_URL=`echo $UPLOAD_URL | sed "s/{?name}/?name=$f/"`
+        FILE_UPLOAD_URL=`echo $UPLOAD_URL | sed "s/{?name,label}/?name=$f/"`
         $BASE_CMD -o curl_tmp -H "Content-Type:$MIME_TYPE" --data-binary "@./Outputs/$f" $FILE_UPLOAD_URL
         rm -f curl_tmp
         echo ""
